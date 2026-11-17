@@ -4,13 +4,13 @@
 
 <p align="center">
   <b>A team of AI Bots that work for you. Each one has a name, a job, memory, and a real computer.</b><br>
-  Open source. Self-hosted on your VPS. Runs on the coding agent you already use.
+  Open source. Self-hosted on your VPS or a home Proxmox box. Runs on the coding agent you already use.
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-111?style=flat-square" alt="MIT license"></a>
   <img src="https://img.shields.io/badge/built%20in-Rust-e8702e?style=flat-square" alt="Built in Rust">
-  <img src="https://img.shields.io/badge/runs%20on-Claude%20Code%20%7C%20Codex%20%7C%20Pi-3b82f6?style=flat-square" alt="Runs on Claude Code, Codex, Pi">
+  <img src="https://img.shields.io/badge/runs%20on-Claude%20Code%20%7C%20Codex%20%7C%20Pi%20%7C%20dsh-3b82f6?style=flat-square" alt="Runs on Claude Code, Codex, Pi, dsh">
   <img src="https://img.shields.io/badge/status-early-4cc06a?style=flat-square" alt="Status: early">
 </p>
 
@@ -34,7 +34,7 @@ You message Bots like teammates. They finish work end to end and only ask you wh
 - **Memory that grows**: Bots save your rules and preferences as plain files. Ask "What do you remember about me?"
 - **Routines**: run a Bot on a schedule. Bots create their own cron jobs.
 - **Bot to Bot**: Bots ask each other for help and pass work along.
-- **Any agent**: Claude Code, Codex, or Pi, through one small adapter each.
+- **Any agent**: Claude Code, Codex, Pi, or DeepSeek Harness, through one small adapter each.
 - **Approvals** *(soon)*: Bots pause and ask before risky actions.
 
 Also planned: computer use (Bots drive the browser and GUI apps), skills, and Slack.
@@ -67,9 +67,9 @@ set -a; . ./.env; set +a
 ./target/release/botd
 ```
 
-Then open the web app and say hi to SuperBot. Install and log in to the agent CLIs you want (`claude`, `codex`, `pi`) as the same user that runs `botd`.
+Then open the web app and say hi to SuperBot. Install and log in to the agent CLIs you want (`claude`, `codex`, `pi`, `dsh`) as the same user that runs `botd`.
 
-Deploying on a VPS: see [Backend](docs/backend.md).
+Deploying on a VPS: see [Backend](docs/backend.md). Deploying on a home Proxmox host: see [Proxmox](docs/proxmox.md).
 
 ## Harness agnostic
 
@@ -78,6 +78,7 @@ Bots run on the coding agent you choose:
 - Claude Code CLI (first)
 - Codex CLI
 - Pi Agent
+- DeepSeek Harness (`dsh`, headless profile: DeepSeek V4.1 Flash and other DeepSeek routes)
 - Grok Build *(planned)*
 - Hermes Agent *(planned)*
 

@@ -4,7 +4,7 @@ One Rust binary, `botd`. It serves the web app, stores everything in SQLite, and
 
 ## How it works
 
-- **Bots** live in SQLite. Each Bot has a harness (`claude`, `codex`, or `pi`), an optional model, and a harness session id.
+- **Bots** live in SQLite. Each Bot has a harness (`claude`, `codex`, `pi`, or `dsh`), an optional model, and a harness session id.
 - **A message** is queued. Each Bot runs one task at a time, in order. Different Bots run in parallel.
 - **A run** spawns the harness CLI in the shared workspace, streams its JSON events, and saves each text block as a chat bubble.
 - **Live updates** go to the browser over one Server-Sent Events stream: new messages, streaming text, and what the Bot is doing ("Running: ls").
@@ -25,8 +25,9 @@ Each adapter is one file in `server/src/adapters/`. It builds the command line a
 - **Claude Code**: `claude -p --output-format stream-json --resume <id>`. System prompt via `--append-system-prompt`, fresh every run.
 - **Codex**: `codex exec --json`, then `codex exec resume <id>`. Instructions via `-c developer_instructions=...`. Codex only reads them when a session starts, so later memory edits reach it through the memory file.
 - **Pi**: `pi --mode json --session-dir <bot dir> --session-id <id>`. System prompt via `--append-system-prompt`.
+- **DeepSeek Harness**: `dsh --profile headless --json`. One task per invocation; resumes with `--session-id <id>`. dsh assigns new session ids itself, so the first run captures the id from the opening `session` event. Events are committed messages, not token streams, so dsh Bots don't stream partial text. Runs unattended with `--permission-mode workspace-write --approval-policy never`. Model and effort follow the dsh profile's route (set them in `dsh web` or the profile config); the headless CLI has no model flag, so the Bot model picker is informational for dsh.
 
-All three run with permission prompts off (`--dangerously-skip-permissions` and equivalents). The server is the computer, so treat it that way. Approvals are not built yet.
+All four run with permission prompts off (`--dangerously-skip-permissions` and equivalents). The server is the computer, so treat it that way. Approvals are not built yet.
 
 Add a harness: write one adapter file and add it to `get()` and `NAMES` in `adapters/mod.rs`.
 
@@ -43,9 +44,11 @@ Settings are in [.env.example](../.env.example). Keep `botctl` next to `botd`: t
 
 ## Deploying on a Linux VPS
 
+Running on a home Proxmox host instead of a rented VPS: see [proxmox.md](proxmox.md).
+
 - Keep your server IP, domain, and secrets out of this repo. They go in `.env` on the server.
 
-- Install the harness CLIs you want and log them in **as the user that runs `botd`**: `claude` (then `claude login` or `ANTHROPIC_API_KEY`), `codex` (`codex login` or `OPENAI_API_KEY`), `pi` (provider API key, e.g. `OPENROUTER_API_KEY`). Their env vars pass through to the Bots.
+- Install the harness CLIs you want and log them in **as the user that runs `botd`**: `claude` (then `claude login` or `ANTHROPIC_API_KEY`), `codex` (`codex login` or `OPENAI_API_KEY`), `pi` (provider API key, e.g. `OPENROUTER_API_KEY`), `dsh` (`npm i -g @deepseek-ai/dsh` or `npx @deepseek-ai/dsh`, needs Node.js ^22.19 or >=24; the headless profile takes `DEEPSEEK_API_KEY` from the launch env or `.env`). Their env vars pass through to the Bots.
 - Run `botd` as a normal user, not root. Claude Code refuses to skip permissions as root.
 - Run it under systemd with `Restart=always`. It shuts down cleanly on SIGTERM.
 - Put HTTPS in front (e.g. Caddy) and set `AUTH_PASSWORD` and `HOST=0.0.0.0`, or keep `HOST=127.0.0.1` behind the proxy. The browser logs in with any username and that password.
